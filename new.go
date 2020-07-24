@@ -2,15 +2,19 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 )
 
 var dir string
+var name *string = flag.String("name", "name", "строка")
+var put *string = flag.String("put", "put", "f - вперёд, b - назад")
 
 func readLines(path string) ([]string, error) {
 	file, err := os.Open(path)
@@ -36,7 +40,7 @@ func workWithString(a string) string {
 	return a
 }
 
-func chanal(lines []string, path string, i int) {
+func chanal(lines []string, path1 string, i int) {
 	fmt.Print("Potok #")
 	fmt.Println(i)
 	resp, err := http.Get(lines[i])
@@ -47,9 +51,10 @@ func chanal(lines []string, path string, i int) {
 	}
 	a := lines[i]
 	a = workWithString(a)
-	dir = path + "/" + a
+	dir = path.Join(path1, "/")
+	dir = path.Join(dir, a)
 	os.MkdirAll(dir, 0644)
-	openedDir := path + "/" + a + "/" + a + ".txt"
+	openedDir := path1 + "/" + a + "/" + a + ".html"
 	file, err := os.OpenFile(openedDir, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666) //os.Create(path)
 
 	if err != nil {
@@ -66,9 +71,10 @@ func chanal(lines []string, path string, i int) {
 //var makedDir string
 
 func main() {
+	flag.Parse()
 	//использавать библ флаг
-	inputFile := os.Args[1]
-	outputFile := os.Args[2]
+	inputFile := *name
+	outputFile := *put
 	lines, err := readLines(inputFile)
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
